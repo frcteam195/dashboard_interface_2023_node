@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dashboard_interface_node</name>
+  <version>0.0.1</version>
+  <description>
+    dashboard_interface_node
+  </description>
+  <author>Team 195</author>
+  <maintainer email="info@team195.com">Team 195</maintainer>
+  <license>BSD</license>
+  <url>https://github.com/frcteam195/2023_dashboard_interface_node</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+
+  <test_depend>rostest</test_depend>
+</package>
