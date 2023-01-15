@@ -62,7 +62,12 @@ def send_dashboard_packet():
     send({
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
-        "autonomous_configuration": autonomous_configuration,
+        #"autonomous_configuration": autonomous_configuration,
+        "autonomous_configuration": {
+            "autonomous_options":["Win", "Lose"],
+            "game_pieces":["Cone", "Cube"],
+            "starting_positoins":["Canada", "Houston", "Roof of Mohawk"]
+        },
         "drive_orientation": "robotOriented",
         "faults": ["Fire!", "Help!", ":'("]
         })
