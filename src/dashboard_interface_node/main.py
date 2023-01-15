@@ -47,7 +47,11 @@ def send_dashboard_packet():
     if hmi_updates.get() is not None:
         hmi_updates_data = {
             "drivetrain_forward_back": hmi_updates.get().drivetrain_fwd_back,
-            "drivetrain_left_right": hmi_updates.get().drivetrain_left_right
+            "drivetrain_left_right": hmi_updates.get().drivetrain_left_right,
+            "drivetrain_swerve_direction": hmi_updates.get().drivetrain_swerve_direction,
+            "drivetrain_quickturn": hmi_updates.get().drivetrain_quickturn,
+            "drivetrain_brake": hmi_updates.get().drivetrain_brake
+
         }
 
     autonomous_configuration = ""
