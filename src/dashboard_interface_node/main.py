@@ -51,12 +51,10 @@ def send_dashboard_packet():
             "drivetrain_swerve_direction": hmi_updates.get().drivetrain_swerve_direction,
             "drivetrain_quickturn": hmi_updates.get().drivetrain_quickturn,
             "drivetrain_brake": hmi_updates.get().drivetrain_brake
-
         }
 
     autonomous_configuration = ""
     if autonomous_configuration_options is not None:
-        
         autonomous_configuration = {
             "autonomous_options": autonomous_configuration_options.autonomous_options,
             "game_pieces": autonomous_configuration_options.game_pieces,
