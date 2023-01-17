@@ -50,7 +50,10 @@ def send_dashboard_packet():
     if hmi_updates.get() is not None:
         hmi_updates_data = {
             "drivetrain_forward_back": hmi_updates.get().drivetrain_fwd_back,
-            "drivetrain_left_right": hmi_updates.get().drivetrain_left_right
+            "drivetrain_left_right": hmi_updates.get().drivetrain_left_right,
+            "drivetrain_swerve_direction": hmi_updates.get().drivetrain_swerve_direction,
+            "drivetrain_brake": hmi_updates.get().drivetrain_brake,
+            "drivetrain_orientation": hmi_updates.get().drivetrain_orientation
         }
 
     autonomous_configuration = ""
@@ -61,17 +64,21 @@ def send_dashboard_packet():
             "starting_positions": autonomous_configuration_options.starting_positions
         }
 
-    faults_list = []
+    
     if faults_data is not None:
         faults_list = faults_data.faults
 
-    send({
+    faults_list = []
+    packet = {
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
         "autonomous_configuration": autonomous_configuration,
         "drive_orientation": "robotOriented",
         "faults": faults_list
-        })
+        }
+
+    send(packet)
+
 
 
 def loop():
