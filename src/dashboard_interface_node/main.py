@@ -28,6 +28,9 @@ def receive_autonomous_configuration_options(new_autonomous_configuration_option
     global autonomous_configuration_options
     autonomous_configuration_options = new_autonomous_configuration_options
 
+def receive_faults(new_faults):
+    global faults_data
+    faults_data = new_faults
 
 def send(msg):
     for c in clients:
@@ -52,19 +55,22 @@ def send_dashboard_packet():
 
     autonomous_configuration = ""
     if autonomous_configuration_options is not None:
-        
         autonomous_configuration = {
             "autonomous_options": autonomous_configuration_options.autonomous_options,
             "game_pieces": autonomous_configuration_options.game_pieces,
             "starting_positions": autonomous_configuration_options.starting_positions
         }
 
+    faults_list = []
+    if faults_data is not None:
+        faults_list = faults_data.faults
+
     send({
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
         "autonomous_configuration": autonomous_configuration,
         "drive_orientation": "robotOriented",
-        "faults": ["Fire!", "Help!", ":'("]
+        "faults": faults_list
         })
 
 
@@ -95,7 +101,7 @@ def ros_main(node_name):
     register_for_robot_updates()
 
     rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
-
+    rospy.Subscriber("/Health_Montitor_Status", Health_Monitor_Status, receive_faults)
     t1 = Thread(target=loop)
     t1.start()
 
