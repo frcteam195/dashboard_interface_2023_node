@@ -40,8 +40,10 @@ def send(msg):
 
 def send_dashboard_packet():
     global autonomous_configuration_options
+    global faults_data
     global hmi_updates
     global robot_status
+    
 
     robot_status_data = ""
     if robot_status is not None:
