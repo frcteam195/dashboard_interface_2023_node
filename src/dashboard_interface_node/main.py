@@ -97,14 +97,20 @@ def loop():
                 clients.append(address)
 
             rospy.loginfo(message)
-
+             if message["type"] == "data":
+                if message["acknowledge"]:
+                    pubmsg = Health_Monitor_Control()
+                    pubmsg.faults = []
+                    pubmsg.acknowledge = True
+                    status_pub.publish(pubmsg)
         except:
+             
             pass
 
         send_dashboard_packet()
 
         rate.sleep()
-
+   
 
 def ros_main(node_name):
     rospy.init_node(node_name)
@@ -112,9 +118,10 @@ def ros_main(node_name):
 
     rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
     rospy.Subscriber("/HealthMontitorStatus", Health_Monitor_Status, receive_faults)
+    status_pub = rospy.Publisher(name="HealthMonitorControl", data_class=Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
     t1 = Thread(target=loop)
     t1.start()
-
+    
     rospy.spin()
 
     t1.join(5)
