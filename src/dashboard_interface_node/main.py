@@ -108,7 +108,7 @@ def ros_main(node_name):
     register_for_robot_updates()
 
     rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
-    rospy.Subscriber("/Health_Montitor_Status", Health_Monitor_Status, receive_faults)
+    rospy.Subscriber("/HealthMontitorStatus", Health_Monitor_Status, receive_faults)
     t1 = Thread(target=loop)
     t1.start()
 
