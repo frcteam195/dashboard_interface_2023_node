@@ -2,8 +2,7 @@
 
 from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy, Alliance, RobotMode
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
-from ck_ros_msgs_node.msg import AutonomousConfiguration
-from ck_ros_msgs_node.msg import AutonomousSelection
+from ck_ros_msgs_node.msg import AutonomousConfiguration, AutonomousSelection, Health_Monitor_Control, Health_Monitor_Status
 from threading import Thread
 import tf2_ros
 import rospy
@@ -25,9 +24,15 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setblocking(0)
 sock.bind((UDP_IP, UDP_PORT))
 
+
 def receive_autonomous_configuration_options(new_autonomous_configuration_options):
     global autonomous_configuration_options
     autonomous_configuration_options = new_autonomous_configuration_options
+
+
+def receive_faults(new_faults):
+    global faults_data
+    faults_data = new_faults
 
 
 def send(msg):
@@ -37,6 +42,7 @@ def send(msg):
 
 def send_dashboard_packet():
     global autonomous_configuration_options
+    global faults_data
     global hmi_updates
     global robot_status
 
@@ -62,11 +68,15 @@ def send_dashboard_packet():
             "starting_positions": autonomous_configuration_options.starting_positions
         }
 
+    if faults_data is not None:
+        faults_list = faults_data.faults
+
+    faults_list = []
     packet = {
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
         "autonomous_configuration": autonomous_configuration,
-        "faults": ["Fire!", "Help!", ":\'("]
+        "faults": faults_list
     }
 
     send(packet)
@@ -75,8 +85,10 @@ def send_dashboard_packet():
 def loop():
     rate = rospy.Rate(10)
 
+    acknowledge_pub = rospy.Publisher(name="HealthMonitorControl", Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
+
     autonomous_selection_pub = rospy.Publisher(
-        name="AutonomousSelections", data_class=AutonomousSelection, queue_size = 50, tcp_nodelay=True)
+        name="AutonomousSelections", data_class=AutonomousSelection, queue_size=50, tcp_nodelay=True)
 
     while not rospy.is_shutdown():
 
@@ -88,21 +100,27 @@ def loop():
 
                 clients.append(address)
 
-
             rospy.loginfo(message)
 
-            pubmsg = AutonomousSelection()
-            pubmsg.selectedGamePiece = message["autonomous"]["autonomous"]
-            pubmsg.selectedStartPosition = message["autonomous"]["game_pieces"]
-            pubmsg.selectedAuto = message["autonomous"]["position"]
-            autonomous_selection_pub.publish(pubmsg)
+            if message["type"] == "data":
+
+                autonomous_selection_msg = AutonomousSelection()
+                autonomous_selection_msg.selectedGamePiece = message["autonomous"]["autonomous"]
+                autonomous_selection_msg.selectedStartPosition = message["autonomous"]["game_pieces"]
+                autonomous_selection_msg.selectedAuto = message["autonomous"]["position"]
+                autonomous_selection_pub.publish(autonomous_selection_msg)
+
+                if message["acknowledge"]:
+                    acknowledge_msg = Health_Monitor_Control()
+                    acknowledge_msg.faults = []
+                    acknowledge_msg.acknowledge = True
+                    acknowledge_pub.publish(acknowledge_msg)
 
         except:
+
             pass
 
         send_dashboard_packet()
-
-
 
         rate.sleep()
 
@@ -111,8 +129,10 @@ def ros_main(node_name):
     rospy.init_node(node_name)
     register_for_robot_updates()
 
-    rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
-
+    rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration,
+                     receive_autonomous_configuration_options)
+    rospy.Subscriber("/HealthMontitorStatus",
+                     Health_Monitor_Status, receive_faults)
     t1 = Thread(target=loop)
     t1.start()
 
