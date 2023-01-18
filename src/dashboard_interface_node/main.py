@@ -3,6 +3,7 @@
 from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy, Alliance, RobotMode
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
 from ck_ros_msgs_node.msg import AutonomousConfiguration
+from ck_ros_msgs_node.msg import Health_Monitor_Status
 from threading import Thread
 import tf2_ros
 import rospy
