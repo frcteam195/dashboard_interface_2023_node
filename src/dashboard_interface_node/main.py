@@ -3,6 +3,7 @@
 from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy, Alliance, RobotMode
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
 from ck_ros_msgs_node.msg import AutonomousConfiguration
+from ck_ros_msgs_node.msg import AutonomousSelection
 from threading import Thread
 import tf2_ros
 import rospy
@@ -64,12 +65,7 @@ def send_dashboard_packet():
     packet = {
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
-        # "autonomous_configuration": autonomous_configuration,
-        "autonomous_configuration": {
-            "autonomous_options": ["Win", "Lose"],
-            "game_pieces": ["Cone", "Cube"],
-            "starting_positions": ["Canada", "Houston", "Roof of Mohawk"]
-        },
+        "autonomous_configuration": autonomous_configuration,
         "faults": ["Fire!", "Help!", ":\'("]
     }
 
@@ -79,6 +75,9 @@ def send_dashboard_packet():
 def loop():
     rate = rospy.Rate(10)
 
+    autonomous_selection_pub = rospy.Publisher(
+        name="AutonomousSelections", data_class=AutonomousSelection, queue_size = 50, tcp_nodelay=True)
+
     while not rospy.is_shutdown():
 
         try:
@@ -86,14 +85,24 @@ def loop():
 
             if address not in clients:
                 rospy.loginfo("New Client: " + str(address))
+
                 clients.append(address)
 
+
             rospy.loginfo(message)
+
+            pubmsg = AutonomousSelection()
+            pubmsg.selectedGamePiece = message["autonomous"]["autonomous"]
+            pubmsg.selectedStartPosition = message["autonomous"]["game_pieces"]
+            pubmsg.selectedAuto = message["autonomous"]["position"]
+            autonomous_selection_pub.publish(pubmsg)
 
         except:
             pass
 
         send_dashboard_packet()
+
+
 
         rate.sleep()
 
