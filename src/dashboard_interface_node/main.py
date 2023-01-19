@@ -15,6 +15,7 @@ BUFFER_SIZE = 1024
 clients = []
 
 autonomous_configuration_options = None
+faults_data = None
 
 print("UDP target IP: %s" % UDP_IP)
 print("UDP target port: %s" % UDP_PORT)
@@ -85,7 +86,7 @@ def send_dashboard_packet():
 def loop():
     rate = rospy.Rate(10)
 
-    acknowledge_pub = rospy.Publisher(name="HealthMonitorControl", Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
+    acknowledge_pub = rospy.Publisher(name="HealthMonitorControl", data_class=Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
 
     autonomous_selection_pub = rospy.Publisher(
         name="AutonomousSelections", data_class=AutonomousSelection, queue_size=50, tcp_nodelay=True)
