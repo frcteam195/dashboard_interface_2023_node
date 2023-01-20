@@ -2,7 +2,7 @@
 import rospy
 from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy, Alliance, RobotMode
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
-from ck_ros_msgs_node.msg import AutonomousConfiguration, AutonomousSelection, Health_Monitor_Control, Health_Monitor_Status
+from ck_ros_msgs_node.msg import Autonomous_Configuration, Autonomous_Selection, Health_Monitor_Control, Health_Monitor_Status
 from threading import Thread
 import socket
 import json
@@ -85,39 +85,36 @@ def send_dashboard_packet():
 def loop():
     rate = rospy.Rate(10)
 
-    acknowledge_pub = rospy.Publisher(name="HealthMonitorControl", data_class=Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
+    acknowledge_pub = rospy.Publisher(
+        name="HealthMonitorControl", data_class=Health_Monitor_Control, queue_size=50, tcp_nodelay=True)
 
-    autonomous_selection_pub = rospy.Publisher(
-        name="AutonomousSelections", data_class=AutonomousSelection, queue_size=50, tcp_nodelay=True)
+    autonomous_selection_publisher = rospy.Publisher(
+        name="AutonomousSelection", data_class=Autonomous_Selection, queue_size=50, tcp_nodelay=True)
 
     while not rospy.is_shutdown():
 
         try:
-            message, address = sock.recvfrom(BUFFER_SIZE)
+            buffer, address = sock.recvfrom(BUFFER_SIZE)
+            message = json.loads(buffer)
 
             if address not in clients:
                 rospy.loginfo("New Client: " + str(address))
-
                 clients.append(address)
 
-            # rospy.loginfo(message)
-
-            if message["type"] == "data":
-
-                autonomous_selection_msg = AutonomousSelection()
-                autonomous_selection_msg.selectedGamePiece = message["autonomous"]["autonomous"]
-                autonomous_selection_msg.selectedStartPosition = message["autonomous"]["game_pieces"]
-                autonomous_selection_msg.selectedAuto = message["autonomous"]["position"]
-                autonomous_selection_pub.publish(autonomous_selection_msg)
+            if message["type"] == "data":                
+                selection_message = Autonomous_Selection()
+                selection_message.starting_position = message["autonomous"]["position"]
+                selection_message.game_piece = message["autonomous"]["game_piece"]
+                selection_message.autonomous = message["autonomous"]["autonomous"]
+                autonomous_selection_publisher.publish(selection_message)
 
                 if message["acknowledge"]:
-                    acknowledge_msg = Health_Monitor_Control()
-                    acknowledge_msg.faults = []
-                    acknowledge_msg.acknowledge = True
-                    acknowledge_pub.publish(acknowledge_msg)
+                    acknowledge_message = Health_Monitor_Control()
+                    acknowledge_message.faults = []
+                    acknowledge_message.acknowledge = True
+                    acknowledge_pub.publish(acknowledge_message)
 
         except:
-
             pass
 
         send_dashboard_packet()
@@ -129,7 +126,7 @@ def ros_main(node_name):
     rospy.init_node(node_name)
     register_for_robot_updates()
 
-    rospy.Subscriber("AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
+    rospy.Subscriber("AutonomousConfiguration", Autonomous_Configuration, receive_autonomous_configuration_options)
     rospy.Subscriber("HealthMonitorStatus", Health_Monitor_Status, receive_health_monitor_status)
 
     t1 = Thread(target=loop)
