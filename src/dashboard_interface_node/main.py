@@ -100,7 +100,7 @@ def loop():
 
                 clients.append(address)
 
-            rospy.loginfo(message)
+            # rospy.loginfo(message)
 
             if message["type"] == "data":
 
