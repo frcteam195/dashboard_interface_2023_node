@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-
+import rospy
 from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy, Alliance, RobotMode
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
 from ck_ros_msgs_node.msg import AutonomousConfiguration, AutonomousSelection, Health_Monitor_Control, Health_Monitor_Status
 from threading import Thread
-import tf2_ros
-import rospy
 import socket
 import json
 
@@ -15,7 +13,7 @@ BUFFER_SIZE = 1024
 clients = []
 
 autonomous_configuration_options = None
-faults_data = None
+health_status_message = None
 
 print("UDP target IP: %s" % UDP_IP)
 print("UDP target port: %s" % UDP_PORT)
@@ -31,9 +29,9 @@ def receive_autonomous_configuration_options(new_autonomous_configuration_option
     autonomous_configuration_options = new_autonomous_configuration_options
 
 
-def receive_faults(new_faults):
-    global faults_data
-    faults_data = new_faults
+def receive_health_monitor_status(status_message):
+    global health_status_message
+    health_status_message = status_message
 
 
 def send(msg):
@@ -43,7 +41,7 @@ def send(msg):
 
 def send_dashboard_packet():
     global autonomous_configuration_options
-    global faults_data
+    global health_status_message
     global hmi_updates
     global robot_status
 
@@ -69,15 +67,16 @@ def send_dashboard_packet():
             "starting_positions": autonomous_configuration_options.starting_positions
         }
 
-    if faults_data is not None:
-        faults_list = faults_data.faults
+    faults = []
+    if health_status_message is not None:
+        for fault in health_status_message.faults:
+            faults.append({"code": fault.code, "priority": fault.priority})
 
-    faults_list = []
     packet = {
         "robot_status": robot_status_data,
         "hmi_updates": hmi_updates_data,
         "autonomous_configuration": autonomous_configuration,
-        "faults": faults_list
+        "faults": faults
     }
 
     send(packet)
@@ -130,10 +129,9 @@ def ros_main(node_name):
     rospy.init_node(node_name)
     register_for_robot_updates()
 
-    rospy.Subscriber("/AutonomousConfiguration", AutonomousConfiguration,
-                     receive_autonomous_configuration_options)
-    rospy.Subscriber("/HealthMontitorStatus",
-                     Health_Monitor_Status, receive_faults)
+    rospy.Subscriber("AutonomousConfiguration", AutonomousConfiguration, receive_autonomous_configuration_options)
+    rospy.Subscriber("HealthMonitorStatus", Health_Monitor_Status, receive_health_monitor_status)
+
     t1 = Thread(target=loop)
     t1.start()
 

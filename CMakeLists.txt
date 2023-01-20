@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(dashboard_interface_node)
 
-find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs)
+find_package(catkin REQUIRED COMPONENTS message_generation rospy std_msgs)
 
 # add_message_files(
 #   FILES
@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs
 # )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
+  CATKIN_DEPENDS message_runtime rospy std_msgs
 )
 
 # include_directories(include ${catkin_INCLUDE_DIRS})
