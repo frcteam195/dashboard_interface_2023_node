@@ -59,7 +59,7 @@ def send_dashboard_packet():
             "drivetrain_orientation": hmi_updates.get().drivetrain_orientation
         }
 
-    autonomous_configuration = ""
+    autonomous_configuration = None
     if autonomous_configuration_options is not None:
         autonomous_configuration = {
             "autonomous_options": autonomous_configuration_options.autonomous_options,
@@ -113,6 +113,14 @@ def loop():
                     acknowledge_message.faults = []
                     acknowledge_message.acknowledge = True
                     acknowledge_pub.publish(acknowledge_message)
+
+                # if message["autonomous_configuration"]["starting_positions"] == "Outside Mohawk" and message ["autonomous_configuration"]["game_piece"] == "Cone":
+                #     ["autonomous"]["autonomous"] = "Cone Outside"
+                #     ["autonomous"]["position"] = "Outside Mohawk"
+                #     ["autonomous"]["game_piece"] = "Cone"
+                #if selection_message.starting_position == "Outside Mohawk":
+
+
 
         except:
             pass
