@@ -15,8 +15,8 @@ clients = []
 autonomous_configuration_options = None
 health_status_message = None
 
-print("UDP target IP: %s" % UDP_IP)
-print("UDP target port: %s" % UDP_PORT)
+rospy.loginfo("UDP target IP: %s" % UDP_IP)
+rospy.loginfo("UDP target port: %s" % UDP_PORT)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
