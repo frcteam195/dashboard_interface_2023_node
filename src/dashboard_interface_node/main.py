@@ -114,11 +114,6 @@ def loop():
                     acknowledge_message.acknowledge = True
                     acknowledge_pub.publish(acknowledge_message)
 
-                # if message["autonomous_configuration"]["starting_positions"] == "Outside Mohawk" and message ["autonomous_configuration"]["game_piece"] == "Cone":
-                #     ["autonomous"]["autonomous"] = "Cone Outside"
-                #     ["autonomous"]["position"] = "Outside Mohawk"
-                #     ["autonomous"]["game_piece"] = "Cone"
-                #if selection_message.starting_position == "Outside Mohawk":
 
 
 
