@@ -64,7 +64,8 @@ def send_dashboard_packet():
         autonomous_configuration = {
             "autonomous_options": autonomous_configuration_options.autonomous_options,
             "game_pieces": autonomous_configuration_options.game_pieces,
-            "starting_positions": autonomous_configuration_options.starting_positions
+            "starting_positions": autonomous_configuration_options.starting_positions,
+            "preview_image_name": autonomous_configuration_options.preview_image_name
         }
 
     faults = []
