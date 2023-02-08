@@ -55,6 +55,7 @@ def send_dashboard_packet():
             "drivetrain_forward_back": hmi_updates.get().drivetrain_fwd_back,
             "drivetrain_left_right": hmi_updates.get().drivetrain_left_right,
             "drivetrain_swerve_direction": hmi_updates.get().drivetrain_swerve_direction,
+            "drivetrain_heading": hmi_updates.get().drivetrain_heading,
             "drivetrain_brake": hmi_updates.get().drivetrain_brake,
             "drivetrain_orientation": hmi_updates.get().drivetrain_orientation
         }
