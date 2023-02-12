@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-# Import required Python code.
 import roslib
+import rospy
+
+from dashboard_interface_node.main import DashboardInterfaceNode
+
 NODE_NAME = 'dashboard_interface_node'
 roslib.load_manifest(NODE_NAME)
-import rospy
-import tf2_ros
-import dashboard_interface_node.main as main
+
 if __name__ == '__main__':
-    main.ros_main(NODE_NAME)
+    rospy.init_node(NODE_NAME)
+    try:
+        node = DashboardInterfaceNode()
+    except rospy.ROSInterruptException:
+        pass
