@@ -12,7 +12,8 @@ from ck_ros_msgs_node.msg import Autonomous_Configuration, Autonomous_Selection,
 from frc_robot_utilities_py_node.frc_robot_utilities_py import *
 
 UDP_IP = "0.0.0.0"
-UDP_PORT = 41234
+UDP_RECV_PORT = 5807
+UDP_SEND_PORT = 5806
 BUFFER_SIZE = 1024
 
 class DashboardInterfaceNode:
@@ -34,12 +35,12 @@ class DashboardInterfaceNode:
         self.clients = []
 
         rospy.loginfo(f"UDP target IP: {UDP_IP}")
-        rospy.loginfo(f"UDP target port: {UDP_PORT}")
+        rospy.loginfo(f"UDP target port: {UDP_RECV_PORT}")
 
         self.dashboard_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.dashboard_socket.setblocking(0)
-        self.dashboard_socket.bind((UDP_IP, UDP_PORT))
+        self.dashboard_socket.bind((UDP_IP, UDP_RECV_PORT))
 
         loop_thread = Thread(target=self.loop)
         loop_thread.start()
@@ -57,12 +58,12 @@ class DashboardInterfaceNode:
         while not rospy.is_shutdown():
 
             try:
-                buffer, address = self.dashboard_socket.recvfrom(BUFFER_SIZE)
+                (buffer, (address, port)) = self.dashboard_socket.recvfrom(BUFFER_SIZE)
                 message = json.loads(buffer)
 
-                if address not in self.clients:
+                if (address, UDP_SEND_PORT) not in self.clients:
                     rospy.loginfo(f"New Client: {address}")
-                    self.clients.append(address)
+                    self.clients.append((address, UDP_SEND_PORT))
 
                 if message["type"] == "data":
                     selection_message = Autonomous_Selection()
