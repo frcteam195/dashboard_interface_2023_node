@@ -24,7 +24,7 @@ class DashboardInterfaceNode:
         register_for_robot_updates()
 
         self.autonomous_configuration_subscriber = BufferedROSMsgHandlerPy(Autonomous_Configuration)
-        self.autonomous_configuration_subscriber.register_for_updates("AutonomnousConfiguration")
+        self.autonomous_configuration_subscriber.register_for_updates("AutonomousConfiguration")
 
         self.health_status_subscriber = BufferedROSMsgHandlerPy(Health_Monitor_Status)
         self.health_status_subscriber.register_for_updates("HealthMonitorStatus")
@@ -67,8 +67,6 @@ class DashboardInterfaceNode:
 
                 if message["type"] == "data":
                     selection_message = Autonomous_Selection()
-                    selection_message.starting_position = message["autonomous"]["position"]
-                    selection_message.game_piece = message["autonomous"]["game_piece"]
                     selection_message.autonomous = message["autonomous"]["autonomous"]
                     self.autonomous_selection_publisher.publish(selection_message)
 
@@ -106,13 +104,8 @@ class DashboardInterfaceNode:
 
         autonomous_configuration = None
         if self.autonomous_configuration_subscriber.get() is not None:
-            autonomous_configuration_message = self.autonomous_configuration_subscriber.get()
-            autonomous_configuration = {
-                "autonomous_options": autonomous_configuration_message.autonomous_options,
-                "game_pieces": autonomous_configuration_message.game_pieces,
-                "starting_positions": autonomous_configuration_message.starting_positions,
-                "preview_image_name": autonomous_configuration_message.preview_image_name
-            }
+            autonomous_configuration_message : Autonomous_Configuration = self.autonomous_configuration_subscriber.get()
+            autonomous_configuration = autonomous_configuration_message.autonomous_options
 
         faults = []
         if self.health_status_subscriber.get() is not None:
