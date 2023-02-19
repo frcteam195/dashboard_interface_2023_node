@@ -58,7 +58,7 @@ class DashboardInterfaceNode:
         while not rospy.is_shutdown():
 
             try:
-                (buffer, (address, port)) = self.dashboard_socket.recvfrom(BUFFER_SIZE)
+                buffer, (address, _) = self.dashboard_socket.recvfrom(BUFFER_SIZE)
                 message = json.loads(buffer)
 
                 if (address, UDP_SEND_PORT) not in self.clients:
@@ -72,7 +72,6 @@ class DashboardInterfaceNode:
 
                     if message["acknowledge"]:
                         acknowledge_message = Health_Monitor_Control()
-                        acknowledge_message.faults = []
                         acknowledge_message.acknowledge = True
                         self.acknowledge_publisher.publish(acknowledge_message)
 
