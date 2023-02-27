@@ -107,16 +107,19 @@ class DashboardInterfaceNode:
             autonomous_configuration = autonomous_configuration_message.autonomous_options
 
         faults = []
+        ros_is_booted = False
         if self.health_status_subscriber.get() is not None:
-            health_status_message = self.health_status_subscriber.get()
+            health_status_message : Health_Monitor_Status = self.health_status_subscriber.get()
             for fault in health_status_message.faults:
                 faults.append({"code": fault.code, "priority": fault.priority})
+            ros_is_booted = health_status_message.is_ros_fully_booted
 
         packet = {
             "robot_status": robot_status_data,
             "hmi_updates": hmi_updates_data,
             "autonomous_configuration": autonomous_configuration,
-            "faults": faults
+            "faults": faults,
+            "ros_booted" : ros_is_booted
         }
 
         for client in self.clients:
